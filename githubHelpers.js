@@ -12,7 +12,7 @@ module.exports = {
   },
   getRepoCommits(commits_url) {
     return axiosThrottled({method: 'GET', url: commits_url}).then(
-      resp => resp.data,
+      resp => resp.data
     );
   },
 };

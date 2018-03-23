@@ -1,6 +1,7 @@
-const MerkleTools = require('merkle-tools');
+import MerkleTools from 'merkle-tools';
 const merkleTools = new MerkleTools(); // treeOptions is optional
-const chp = require('chainpoint-client');
+import chp from 'chainpoint-client';
+console.log('CHP', chp);
 
 const leafInterval = 1000; //miliseconds
 const numOfLeaves = 5; //merkle tree leaves
@@ -36,7 +37,7 @@ const verifyProofs = async proofs => {
 };
 
 module.exports = {
-  addLeafPerSec: (data) => {
+  addLeafPerSec: data => {
     merkleTools.resetTree();
     let count = 0;
     const addLeaf = async () => {
@@ -50,6 +51,11 @@ module.exports = {
       return addLeaf();
     };
     return addLeaf();
+  },
+  addLeaves: array => {
+    merkleTools.resetTree();
+    merkleTools.addLeaves(array, true);
+    return merkleTools;
   },
   sendTreeToChainpoint: async merkleTools => {
     const doubleHash = false;
@@ -69,6 +75,7 @@ module.exports = {
       const proofs = await getProofs(proofHandles);
       const verifiedProofs = await verifyProofs(proofs);
       console.log('VERIFIEDPROOFS', verifiedProofs);
+      return verifiedProofs;
     }
   },
 };
