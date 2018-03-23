@@ -36,7 +36,7 @@ const verifyProofs = async proofs => {
 };
 
 module.exports = {
-  addLeafPerSec: (data, sendToChainpoint, run) => {
+  addLeafPerSec: (data) => {
     merkleTools.resetTree();
     let count = 0;
     const addLeaf = async () => {
