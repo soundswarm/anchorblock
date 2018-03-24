@@ -1,7 +1,8 @@
 import MerkleTools from 'merkle-tools';
 const merkleTools = new MerkleTools(); // treeOptions is optional
-import chp from 'chainpoint-client';
-console.log('CHP', chp);
+
+// loaded on client side and passed through functions to chp in this file
+let chp;
 
 const leafInterval = 1000; //miliseconds
 const numOfLeaves = 5; //merkle tree leaves
@@ -35,47 +36,30 @@ const verifyProofs = async proofs => {
     console.error('chainpointError verifyProofs', e);
   }
 };
+export const addLeaves = (array, localChp) => {
+  chp = localChp;
+  merkleTools.resetTree();
+  merkleTools.addLeaves(array, true);
+  return merkleTools;
+};
+export const sendTreeToChainpoint = async (merkleTools, localChp) => {
+  chp = localChp;
+  const doubleHash = false;
+  merkleTools.makeTree(doubleHash);
+  const isReady = merkleTools.getTreeReadyState();
 
-module.exports = {
-  addLeafPerSec: data => {
-    merkleTools.resetTree();
-    let count = 0;
-    const addLeaf = async () => {
-      merkleTools.addLeaf(data, true);
-      count++;
-      if (count >= numOfLeaves) {
-        // Once per minute build a Merkle tree of those hashes and submit the Merkle root to Tierion
-        return Promise.resolve(merkleTools);
-      }
-      await new Promise(resolve => setTimeout(resolve, leafInterval));
-      return addLeaf();
-    };
-    return addLeaf();
-  },
-  addLeaves: array => {
-    merkleTools.resetTree();
-    merkleTools.addLeaves(array, true);
-    return merkleTools;
-  },
-  sendTreeToChainpoint: async merkleTools => {
-    const doubleHash = false;
-    merkleTools.makeTree(doubleHash);
-    const isReady = merkleTools.getTreeReadyState();
+  if (isReady) {
+    const rootValueBuffer = merkleTools.getMerkleRoot();
+    const rootValueString = rootValueBuffer.toString('hex');
 
-    if (isReady) {
-      const rootValueBuffer = merkleTools.getMerkleRoot();
-      const rootValueString = rootValueBuffer.toString('hex');
+    // add root to chainpoint
+    const proofHandles = await addToChainpoint(rootValueString);
 
-      // add root to chainpoint
-      const proofHandles = await addToChainpoint(rootValueString);
-
-      // Retrieve the Calendar Chainpoint proof for that root when ready
-      // Wait for Calendar proofs to be available
-      await new Promise(resolve => setTimeout(resolve, 14000));
-      const proofs = await getProofs(proofHandles);
-      const verifiedProofs = await verifyProofs(proofs);
-      console.log('VERIFIEDPROOFS', verifiedProofs);
-      return verifiedProofs;
-    }
-  },
+    // Retrieve the Calendar Chainpoint proof for that root when ready
+    // Wait for Calendar proofs to be available
+    await new Promise(resolve => setTimeout(resolve, 12000));
+    const proofs = await getProofs(proofHandles);
+    const verifiedProofs = await verifyProofs(proofs);
+    return verifiedProofs;
+  }
 };
