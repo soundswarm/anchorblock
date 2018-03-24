@@ -23,6 +23,7 @@
   },
   "devDependencies": {},
   "scripts": {
+    "start": "npm run dev",
     "dev": "next",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
