@@ -2,11 +2,11 @@ This node app:
 
 Generate a new random hash each second.
 
-Once per minute build a Merkle tree of those hashes and submit the Merkle root to Tierion
+Once per minute build a Merkle tree of those hashes and submit the Merkle root to Tierion anchoring API
 
 Retrieve the Calendar Chainpoint proof for that root when ready
 
-Verify the proof using local or remote API calls and output the JSON representation of the proof to the console
+Verify the proof and output the JSON representation of the proof to the console
 
 
 
