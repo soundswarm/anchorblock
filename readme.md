@@ -1,4 +1,4 @@
-This node app is built to the spec:
+This node app:
 
 Generate a new random hash each second.
 
